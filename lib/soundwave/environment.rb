@@ -75,7 +75,7 @@ module Soundwave
       end
     end
 
-    def generate_site
+    def generate
       run_callbacks(:read) do
         read_directories
       end
@@ -86,6 +86,9 @@ module Soundwave
         end
       end
     end
+
+    # Deprecated: Alias to #generate for the two extant projects that use this code
+    alias_method :generate_site, :generate
 
     # Exclude .dotfiles, _underscores, #hashes, ~tildes, paths in @exclude
     # and symlinks, EXCEPT for .htaccess
