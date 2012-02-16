@@ -1,8 +1,10 @@
 # Soundwave
 
-TODO: Write a gem description
+Soundwave is a simple static file generator. Its primary use is for building static web sites, and in that sense it's similar to Tom Preston-Werner's Jekyll. But Soundwave can also bootstrap web application projects, or basically do anything that involves processing data or copying a directory structure lots and lots of times.
 
 ## Installation
+
+TODO: This isn't really a Rails plugin, so you wouldn't necessarily put it in a Gemfile.
 
 Add this line to your application's Gemfile:
 
