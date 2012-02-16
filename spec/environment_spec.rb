@@ -22,12 +22,26 @@ describe Soundwave::Environment do
   end
 
   describe "filter_entries" do
-    it "filters out _files"
-    it "filters out .files"
-    it "filters out #files"
-    it "filters out ~files"
-    it "filters out files listed in #exclude"
-    it "does not filter out .htaccess"
+    it "filters out _files" do
+      environment.filter_entries(["_file", "a"]).should == ["a"]
+    end
+    it "filters out .files" do
+      environment.filter_entries([".rspec", "a"]).should == ["a"]
+    end
+    it "filters out #files" do
+      environment.filter_entries(["#wtf", "a"]).should == ["a"]
+    end
+    it "filters out files~" do
+      environment.filter_entries(["vimblows~", "~tildesrule", "a"]).should == ["~tildesrule","a"]
+    end
+    it "filters out files listed in #exclude" do
+      old_exclude = environment.exclude
+      environment.stub!(:exclude).and_return(old_exclude + ["Guardfile"])
+      environment.filter_entries(["Guardfile", "a"]).should == ["a"]
+    end
+    it "does not filter out .htaccess" do
+      environment.filter_entries([".htaccess", "a"]).should == [".htaccess", "a"]
+    end
   end
 
 end

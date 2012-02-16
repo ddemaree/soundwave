@@ -10,7 +10,6 @@ module Soundwave
 
     def initialize(root="./")
       @root_dir = Pathname(root)
-      yield self
     end
 
     def site_data
