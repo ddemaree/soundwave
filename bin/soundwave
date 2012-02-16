@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'soundwave'
+
+help = <<HELP
+Soundwave is a static site generator.
+
+soundwave        #=> Builds a Soundwave site in the current directory
+soundwave init   #=> Set up a new Soundwave site in the current directory
+
+HELP
+
+if ARGV.first == "init"
+  ARGV.shift
+  puts "soundwave init not yet implemented"
+  exit(0)
+else
+  # puts "Soundwave #{Soundwave::VERSION}"
+end
+
+opts = OptionParser.new do |opts|
+  opts.summary_width = 24
+  opts.banner = help
+
+  # opts.on("-r", "--require LIBRARY", "Require the LIBRARY before doing anything") do |lib|
+  #   require lib
+  # end
+
+  # opts.on("-I DIRECTORY", "--include=DIRECTORY", "Adds the directory to the Sprockets load path") do |directory|
+  #   environment.append_path directory
+  # end
+
+  opts.on("-e", "--exclude [file]", "Skip files/directories named FILE when generating the site") do |file|
+    Soundwave.config.exclude << file
+  end
+
+  opts.on("--version", "Display current version") do
+    puts "Soundwave " + Soundwave::VERSION
+    exit 0
+  end
+end
+
+opts.parse!
+
+if File.exists?("./_soundwave.rb")
+  require "./_soundwave.rb"
+end
+
+environment = Soundwave::Environment.new
+environment.generate_site
+exit(0)
