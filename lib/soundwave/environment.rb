@@ -15,12 +15,9 @@ module Soundwave
       @output_dir ||= @root_dir.join("_site")
       @data_dir   ||= @root_dir.join("_data")
 
-      # TODO: Nicer interface around engines?
-      @engines = {
-        ".mustache" => Soundwave::MustacheTemplate,
-        ".scss"     => Tilt::ScssTemplate,
-        ".erb"      => Tilt::ERBTemplate
-      }
+      register_engine ".mustache", Soundwave::MustacheTemplate
+      register_engine ".scss",     Tilt::ScssTemplate
+      register_engine ".erb",      Tilt::ERBTemplate
     end
 
     def site_data
@@ -37,6 +34,7 @@ module Soundwave
     end
 
     def register_engine(ext, engine)
+      @engines ||= {}
       @engines[ext] = engine
     end
 
