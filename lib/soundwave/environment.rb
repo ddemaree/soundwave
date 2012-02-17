@@ -1,4 +1,5 @@
 require 'active_support/callbacks'
+require 'tilt'
 
 module Soundwave
   class Environment
@@ -6,10 +7,20 @@ module Soundwave
     define_callbacks :read
     define_callbacks :generate
 
-    attr_accessor :root_dir
+    attr_accessor :root_dir, :output_dir, :exclude, :data_dir
 
     def initialize(root="./")
-      @root_dir = Pathname(root)
+      @root_dir     = Pathname(root).expand_path
+      @exclude      = Soundwave.config.exclude
+      @output_dir ||= @root_dir.join("_site")
+      @data_dir   ||= @root_dir.join("_data")
+
+      # TODO: Nicer interface around engines?
+      @engines = {
+        ".mustache" => Soundwave::MustacheTemplate,
+        ".scss"     => Tilt::ScssTemplate,
+        ".erb"      => Tilt::ERBTemplate
+      }
     end
 
     def site_data
@@ -17,24 +28,30 @@ module Soundwave
       {}
     end
 
-    def output_dir
-      @output_dir ||= self.root_dir.join("_site")
-    end
-
-    def data_dir
-      @data_dir ||= self.root_dir.join("_data")
-    end
-
-    def exclude
-      @exclude ||= Soundwave.config.exclude
-    end
-
     def pages
       @pages ||= {}
     end
 
-    def static_extensions
-      Soundwave.static_extensions
+    def engines(ext)
+      @engines[ext]
+    end
+
+    def register_engine(ext, engine)
+      @engines[ext] = engine
+    end
+
+    def attributes_for(pathname)
+      FileAttributes.new(self, pathname) 
+    end
+
+    def build_page(logical_path, pathname)
+      attrs = attributes_for(pathname)
+
+      if attrs.engines.any?
+        RenderedPage.new(self, logical_path, pathname)
+      else
+        StaticFile.new(self, logical_path, pathname)
+      end
     end
 
     def read_directories(dir='')
@@ -46,32 +63,13 @@ module Soundwave
         logical_path = absolute_path.sub(self.root_dir.to_s, "")
 
         if File.directory?(absolute_path)
-          # Recurse into directories
           read_directories(relative_path)
         else
-          basename = File.basename(entry)
-          extensions ||= basename.scan(/\.[^.]+/)
-          engine = extensions[-1]
-
-          # For right now, let's try supporting only Mustache
-          if engine == ".mustache"
-            logical_path = logical_path.sub('.mustache', '.html')
-            add_page(logical_path, RenderedPage.new(self, logical_path, absolute_path))
-          elsif static_extensions.include?(engine)
-            add_page(logical_path, StaticFile.new(self, logical_path, absolute_path))
-          else
-            add_page(logical_path, StaticFile.new(self, logical_path, absolute_path))
-          end
-
+          pathname = Pathname(absolute_path).expand_path
+          attrs = attributes_for(pathname)
+          logical_path = attrs.logical_path
+          pages[logical_path] = build_page(logical_path, pathname)
         end
-      end
-    end
-
-    def add_page(logical_path, page)
-      if pages[logical_path]
-        raise "Page already exists: #{logical_path}"
-      else
-        pages[logical_path] = page
       end
     end
 

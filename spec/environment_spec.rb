@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Soundwave::Environment do
-  let(:environment) { Soundwave::Environment.new("./fixtures/site") }
+  let(:environment) { Soundwave::Environment.new }
 
   before do
     FileUtils.cd File.expand_path("../fixtures/site", __FILE__)
@@ -18,7 +18,14 @@ describe Soundwave::Environment do
     end
   end
 
+  # Indexes the content of the site and stores it as @paths
   describe "read_directories" do
+    it "indexes pages and static files" do
+      environment.read_directories
+      pages = environment.instance_variable_get("@pages")
+      pages.keys.should have(3).items
+      pages.keys.sort.should == ["about.html", "css/site.css", "index.html"]
+    end
   end
 
   describe "filter_entries" do
