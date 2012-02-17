@@ -19,7 +19,8 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency "activesupport", ">= 3.1.0"
   gem.add_runtime_dependency "mustache"
-  gem.add_runtime_dependency "differ"
+  gem.add_runtime_dependency "tilt"
+  gem.add_runtime_dependency "fssm"
 
   gem.add_development_dependency "bundler"
   gem.add_development_dependency "rspec", "~> 2.8.0"
