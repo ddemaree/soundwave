@@ -19,6 +19,8 @@ else
   # puts "Soundwave #{Soundwave::VERSION}"
 end
 
+options = {}
+
 opts = OptionParser.new do |opts|
   opts.summary_width = 24
   opts.banner = help
@@ -39,14 +41,56 @@ opts = OptionParser.new do |opts|
     puts "Soundwave " + Soundwave::VERSION
     exit 0
   end
+
+  opts.on("--watch", "Automatically regenerate when files are changed") do
+    options["watch"] = true
+  end
 end
 
 opts.parse!
 
+# TODO: Move into Soundwave proper and rename
 if File.exists?("./_soundwave.rb")
   require "./_soundwave.rb"
 end
 
 environment = Soundwave::Environment.new
-environment.generate_site
-exit(0)
+
+if options["watch"]
+  require 'fssm'
+  monitor = FSSM::Monitor.new #(:directories => true)
+
+  entries = Dir.chdir(environment.root_dir.expand_path) { Dir.glob("*") }
+  entries = environment.filter_entries(entries)
+  entries.map! { |e| environment.root_dir.join(e) }
+  
+  directories = entries.select { |e| e.directory? }
+  indiv_files = entries - directories
+
+  # Also monitor the data and includes directories
+  directories.push environment.data_dir
+  directories.push environment.root_dir.join("_includes")
+
+  directories.each do |dir_path|
+    monitor.path(dir_path) do
+      update { |base_dir, relative_path|
+        environment.generate_site
+      } 
+    end
+  end
+
+  indiv_files.each do |file_path|
+    monitor.file(file_path) do
+      update { |full_path, relative_dir|
+        environment.generate_site
+      } 
+    end
+  end
+
+  environment.generate_site
+  puts "Now watching for changes in #{environment.root_dir}..."
+  monitor.run
+else
+  environment.generate_site
+  exit(0)
+end
