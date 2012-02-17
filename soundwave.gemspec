@@ -4,9 +4,9 @@ require File.expand_path('../lib/soundwave/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["David Demaree"]
   gem.email         = ["ddemaree@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{A simple static website generator}
+  gem.summary       = %q{A simple static website generator based on Tilt and Mustache}
+  gem.homepage      = "http://github.com/ddemaree/soundwave"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
