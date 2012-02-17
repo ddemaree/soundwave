@@ -3,26 +3,33 @@ require 'mustache'
 module Soundwave
   class RenderedPage < Document
 
+    attr_accessor :data
+    attr_reader :output
 
-      def initialize(page, pathname)
-
-    def initialize(env, relative_path, absolute_path)
+    def initialize(env, logical_path, pathname)
       super
       @data = {}
-      read_data
+      read_data # is this necessary?
     end
     
     def output_path
-      @env.output_dir.join(@relative_path)
+      @env.output_dir.join(logical_path)
     end
 
     def mustache
-      Context.new(self, @pathname)
+      MustacheTemplate.new(@pathname)
     end
 
-    def render(data={})
+    def render
       read_data
-      self.mustache.render(@data)
+      result = pathname.read
+      processors.each do |processor|
+        template = processor.new(pathname.to_s) { result }
+        result   = template.render(@data)
+      end
+
+      @output ||= result
+      result
     end
     alias_method :to_s, :render
 
@@ -33,19 +40,17 @@ module Soundwave
       end
     end
 
-    def changed?
-      file_d = Digest::MD5.file(output_path)
-      content_d = Digest::MD5.hexdigest(self.render())
-      file_d != content_d
-    end
-
   protected
+
+    def processors
+      file_attributes.engines
+    end
 
     def read_data
       # Get site data
       @data = @env.site_data || {}
 
-      basepath = @pathname.to_s.sub(@env.root_dir.to_s, "").sub(/\..+/, '')
+      basepath = file_attributes.logical_path.sub(/\..+/, '')
       data_file = @env.data_dir.join(basepath + ".yml")
 
       if File.exists?(data_file)
