@@ -3,35 +3,8 @@ require 'mustache'
 module Soundwave
   class RenderedPage < Document
 
-    # Custom wrapper for Mustache, to enforce Soundwave conventions w/r/t
-    # template and partial naming.
-    class Context < ::Mustache
 
-      # Public: Initializes a new RenderedPage::Context.
-      #
-      # page     - The RenderedPage this belongs to
-      # pathname - Pathname for the template file
-      #
-      # Returns a Context object.
       def initialize(page, pathname)
-        @page = page
-        @pathname = pathname
-      end
-
-      # Public: Reads the template file from disk and returns its
-      # contents as a String.
-      def template
-        @pathname.read
-      end
-
-      # Public: Reads the partial template with the given name and
-      # returns its contents.
-      def partial(name)
-        # TODO: Make this a teeny bit more robust?
-        name = '_includes/' + name.to_s
-        super
-      end
-    end
 
     def initialize(env, relative_path, absolute_path)
       super
