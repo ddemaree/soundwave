@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["David Demaree"]
   gem.email         = ["ddemaree@gmail.com"]
   gem.description   = %q{Processes Mustache templates and YAML/JSON data into static web pages}
-  # gem.summary       = %q{A simple static website generator based on Tilt and Mustache}
+  gem.summary       = %q{A simple static website generator based on Mustache}
   gem.homepage      = "http://github.com/ddemaree/soundwave"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
