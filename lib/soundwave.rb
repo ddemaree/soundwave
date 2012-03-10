@@ -3,21 +3,46 @@ require 'mustache'
 require 'multi_json'
 
 module Soundwave
-
   module CLI
     extend self
 
     def run
-      source = ARGV.shift || "./"  
+      require 'optparse'
+
+      options = {}
+      opts = OptionParser.new do |opts|
+        opts.summary_width = 24
+        opts.banner = "Help banner needed"
+
+        opts.on("--version", "Display current version") do
+          puts "Soundwave " + Soundwave::VERSION
+          exit 0
+        end
+
+        opts.on("-i DIRECTORY", "--includes-dir=DIRECTORY", "Adds DIRECTORY to includes path") do |directory|
+          options[:include_dirs] ||= []
+          options[:include_dirs] << directory
+        end
+      end
+
+      opts.parse!
+
+      source = ARGV.shift || "./"
 
       if File.directory?(source)
+        puts "Generating website in #{source}"
         site = Site.new(source)
         destination = ARGV.shift || site.source.join("_site")
         site.generate(destination)
       else
         site = Site.new("./")
         page = Page.new(site, source)
-        puts page.render
+        if destination = ARGV.shift
+          destination = site.source.join(destination)
+          page.write(destination)
+        else
+          puts page.render
+        end
       end
     end
   end
@@ -63,7 +88,6 @@ module Soundwave
 
     def initialize(source="./", destination="./_site")
       @source = Pathname(source).expand_path
-      # @destination = Pathname(destination).expand_path
     end
 
     def generate(destination)
