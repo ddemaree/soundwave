@@ -1,5 +1,6 @@
 require 'rake'
 require 'rake/tasklib'
+require 'soundwave'
 
 module Soundwave
   class RakeTask < ::Rake::TaskLib
@@ -8,7 +9,7 @@ module Soundwave
     def initialize(name=:pages, source="./", destination="./_site")
       @name = name
       @site = Site.new(source)
-      @destination = destination
+      @destination = Pathname(destination).expand_path
       define
     end
 

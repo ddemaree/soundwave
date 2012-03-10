@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 
-require 'soundwave'
+require 'soundwave/cli'
 Soundwave::CLI.run
