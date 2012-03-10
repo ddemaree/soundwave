@@ -1,3 +1,5 @@
+require 'soundwave'
+
 module Soundwave
   module CLI
     extend self

@@ -30,10 +30,10 @@ module Soundwave
       @paths ||= [@page.path.dirname, site.source.join("includes"), Dir.pwd].map(&:to_s).uniq
       @trail ||= Hike::Trail.new(@page.site.source).tap do |t|
         t.append_extension ".mustache"
-        t.append_paths *@paths
+        @paths.each { |p| t.append_path(p) }
       end
 
-      if path = @trail.find(partial_path(name))
+      if path = (@trail.find(partial_path(name)) || @trail.find(name.to_s))
         File.read(path)
       end
     end

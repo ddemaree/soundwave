@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "mustache"
   gem.add_runtime_dependency "hike"
 
+  gem.add_development_dependency "rack"
   gem.add_development_dependency "annotations"
   gem.add_development_dependency "bundler"
   gem.add_development_dependency "rspec", "~> 2.8.0"
