@@ -1,4 +1,5 @@
 require "soundwave"
+require "soundwave/page"
 require "rack"
 
 module Soundwave
@@ -10,7 +11,7 @@ module Soundwave
 
     def call(env)
       if page = find_page(env["PATH_INFO"])
-        respond_with 200, page.render
+        respond_with 200, page.render, page.content_type
       else
         respond_with 404, "Not Found"
       end
@@ -43,6 +44,7 @@ module Soundwave
 
     def template_trail
       @_template_trail ||= Hike::Trail.new(@site.source).tap do |t|
+        t.extensions.replace(Soundwave::Page::ENGINES)
         t.append_path "."
       end
     end
