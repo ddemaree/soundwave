@@ -22,6 +22,8 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "hike"
   gem.add_runtime_dependency "tilt"
 
+  gem.add_development_dependency "rocco"
+  gem.add_development_dependency "redcarpet", "~> 1.7.0"
   gem.add_development_dependency "rack"
   gem.add_development_dependency "annotations"
   gem.add_development_dependency "bundler"

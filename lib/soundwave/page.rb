@@ -1,7 +1,44 @@
 require 'soundwave'
 require 'tilt'
+require 'mustache'
 
 module Soundwave
+  class Mustache < ::Mustache
+    attr_reader :page
+
+    def initialize(page=nil)
+      @page = page
+    end
+
+    def site
+      @page.site
+    end
+
+    def template
+      @page.path.read
+    end
+
+    def partial_path(name)
+      name = name.to_s
+      dirname = File.dirname(name)
+      basename = File.basename(name)
+      partialname = "_#{basename}"
+      File.join(dirname, partialname)
+    end
+
+    def partial(name)
+      @paths ||= [@page.path.dirname, site.source.join("includes"), Dir.pwd].map(&:to_s).uniq
+      @trail ||= Hike::Trail.new(@page.site.source).tap do |t|
+        t.append_extension ".mustache"
+        @paths.each { |p| t.append_path(p) }
+      end
+
+      if path = (@trail.find(partial_path(name)) || @trail.find(name.to_s))
+        File.read(path)
+      end
+    end
+  end
+
   class Page
     attr_reader :site, :path
     attr_accessor :data
