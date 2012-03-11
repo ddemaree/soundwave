@@ -5,6 +5,8 @@ describe Soundwave::Page do
   
   let(:root_path) { Pathname(File.expand_path("../fixtures/site", __FILE__)) }
   let(:site) { Soundwave::Site.new(root_path) }
+
+  # TODO: Write spec for #write()
   
   describe "Mustache template" do
     subject { Soundwave::Page.new(site, root_path.join("index.mustache")) }

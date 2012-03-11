@@ -22,11 +22,14 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "hike"
   gem.add_runtime_dependency "tilt"
 
-  gem.add_development_dependency "rocco"
-  gem.add_development_dependency "redcarpet", "~> 1.7.0"
-  gem.add_development_dependency "rack"
-  gem.add_development_dependency "annotations"
   gem.add_development_dependency "bundler"
   gem.add_development_dependency "rspec", "~> 2.8.0"
+  gem.add_development_dependency "rake"
+  gem.add_development_dependency "fakefs"
+  gem.add_development_dependency "watchr"
+  gem.add_development_dependency "rocco"
+  gem.add_development_dependency "redcarpet", "~> 1.7.0"
+  gem.add_development_dependency "annotations"
+  gem.add_development_dependency "rack"
   gem.add_development_dependency "sass", "~> 3.1.0"
 end

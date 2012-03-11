@@ -1,6 +1,13 @@
+#### Prerequisites
+
+# Require Soundwave's Site and Page objects.
 require "soundwave"
 require "soundwave/page"
+
+# Obviously we will need Rack.
 require "rack"
+
+# `Soundwave::Server` provides a Rack app that will dynamically read, render, and output pages from a Soundwave site.
 
 module Soundwave
   class Server

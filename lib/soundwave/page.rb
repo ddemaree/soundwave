@@ -1,12 +1,21 @@
-require 'soundwave'
-require 'tilt'
-require 'mustache'
+#### Prerequisites
 
+# We need to require the `soundwave` lib, for the Site class
+require 'soundwave'
+
+# Template engines: Mustache for basic HTML pages, Tilt for more complex views/assets
+require 'mustache'
+require 'tilt'
+
+#### Soundwave::Mustache
+
+# We need to subclass Mustache in order to implement our own partial-finding behavior.
 module Soundwave
   class Mustache < ::Mustache
     attr_reader :page
 
-    def initialize(page=nil)
+    # `Soundwave::Mustache` takes a `Page`, for its template source and partial path
+    def initialize(page)
       @page = page
     end
 
@@ -39,6 +48,8 @@ module Soundwave
     end
   end
 
+  #### Soundwave::Page
+
   class Page
     attr_reader :site, :path
     attr_accessor :data
@@ -55,13 +66,6 @@ module Soundwave
       @data = {}
     end
 
-    # def template
-    #   if engine_extension
-    #     options = app.template_options[engine_extension] || nil
-    #     @template ||= Tilt.new(path, options, :outvar => '@_out_buf')
-    #   end
-    # end
-
     def basename
       @basename ||= File.basename(path.to_s)
     end
@@ -71,7 +75,6 @@ module Soundwave
     end
 
     def format_extension
-      # If you don't want HTML, use multiple extensions
       if extensions.length == 1 && DEFAULT_FORMATS[extensions[0]]
         DEFAULT_FORMATS[extensions[0]]
       elsif engine_extension
@@ -81,26 +84,18 @@ module Soundwave
       end
     end
 
-    # By convention, files that are to be processed should be named in Rails/Sprockets-like format, e.g. name.format.engine.
+    # By convention, files that are to be processed should be named in Rails/Sprockets-like format, e.g. `name.format.engine`.
     def engine_extension
       extensions.select { |e| ENGINES.include?(e) }[-1]
     end
 
+    # This is used by `Soundwave::Server` to identify the appropriate content type for Rack serving.
     def content_type
       @content_type ||= begin
         type = Rack::Mime.mime_type(format_extension)
         type[/^text/] ? "#{type}; charset=utf-8" : type
       end
     end
-
-    # def render(env, locals = {}, &block)
-    #   if template
-    #     template.render(app.context_for(self, env), locals, &block)
-    #   else
-    #     File.read(path)
-    #   end
-    # end
-
 
     def relative_path
       @path.relative_path_from(site.source).to_s
@@ -138,6 +133,7 @@ module Soundwave
     def write(destination)
       destination = Pathname(destination)
       puts "#{relative_path} => #{destination.relative_path_from(site.source)}"
+      FileUtils.mkdir_p(destination.dirname)
       File.open(destination, "w") { |f| f.write(self.render) }
     end
 

@@ -18,6 +18,10 @@ require 'hike'
 # several popular JSON parsing and decoding libraries.
 require 'multi_json'
 
+# Next, load in some bits of Soundwave stored in other files:
+require 'soundwave/page'
+
+
 #### Public Interface
 
 module Soundwave
@@ -39,23 +43,50 @@ module Soundwave
 
     # The aptly named `generate` takes a `destination` path for the generated web pages.
     def generate(destination)
-      destination = Pathname(destination)
-      # TODO: Expand to handle all files, not just Mustache.
-      #
-      # First, we find all of the `.mustache` files in the project and iterate over that list.
-      # Files whose basenames start with an underscore (_) are skipped.
+      destination = Pathname(destination).expand_path
+      # First, we find all of the renderable files in the project and iterate over that list.
       #
       # Next, we create a [Page](./soundwave/page.html) object for each file and write it to
       # the destination path.
-      Dir[source.join("**","*.mustache")].each do |path|
-        next if File.basename(path).to_s =~ /^_/
-
+      find_paths.each do |path|
         page = Page.new(self, path)
         page.write(destination.join(page.output_path))
       end
     end
 
-    private
+    # `find_paths` returns a filtered list of all the pages/assets in the site.
+    def find_paths(dir="")
+      base = File.join(@source, dir)
+      entries = Dir.chdir(base) { filter_entries(Dir["*"]) }
+      paths = []
+
+      entries.each do |entry|
+        absolute_path = File.join(base, entry)
+        relative_path = File.join(dir, entry)
+
+        if File.directory?(absolute_path)
+          paths.concat find_paths(relative_path)
+        else
+          paths << absolute_path
+        end
+      end
+      paths
+    end
+
+    # `filter_entries` is a utility method for filtering out files/directories that should not be published:
+    # 
+    # * Files starting with _ or #
+    # * Swap files ending in a tilde (~)
+    # * Symbolic links
+    def filter_entries(entries)
+      entries = entries.reject do |e|
+        unless ['.htaccess'].include?(e)
+          ['_', '#'].include?(e[0..0]) ||
+          e[-1..-1] == '~' ||
+          File.symlink?(e)
+        end
+      end
+    end
 
     def data_trail
       @_data_path ||= Hike::Trail.new(data_dir).tap do |t|
