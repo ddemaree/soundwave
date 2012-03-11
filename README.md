@@ -1,3 +1,5 @@
+# Soundwave: Yet another static site generator
+
 **Soundwave** is a tool for generating static web pages with structured data,
 with [Mustache][mo] or [Tilt][tilt] templates, and data files formatted as 
 YAML or JSON. I use it to rapidly prototype blog themes, and other kinds of
@@ -10,7 +12,7 @@ Soundwave projects consist entirely of text files (plus images or other static a
 there's (currently) no plugin API or Ruby configuration interface. So long as your content
 is in the right place and formatted properly, Soundwave should just work.
 
-### Installation and usage
+## Installation and usage
 
 Install Soundwave with Rubygems:
 
@@ -56,7 +58,7 @@ Then you can start the server with `rackup`:
 
 Voila! Your site is now online at `http://localhost:9292`.
 
-### A Soundwave site
+## A Soundwave site
 
 A Soundwave site folder looks something like
 this:
